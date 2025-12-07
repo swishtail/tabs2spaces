@@ -5,26 +5,21 @@
   (lambda (filename)
     (call-with-input-file filename
       (lambda (port)
-        (define read-input-to-list
-          (lambda ()
-            (let ((current-char (read-char port)))
-              (if (eof-object? current-char)
-                  '()
-                  (cons current-char
-                        (read-input-to-list))))))
-        (read-input-to-list)))))
+        (let next-char ((current-char (read-char port)))
+          (if (eof-object? current-char)
+              '()
+              (cons current-char
+                    (next-char (read-char port)))))))))
 
 (define list->file
   (lambda (l filename)
     (call-with-output-file filename
       (lambda (port)
-        (define write-list-to-output
-          (lambda (l)
-            (if (not (null? l))
-                (begin
-                  (write-char (car l) port)
-                  (write-list-to-output (cdr l))))))
-        (write-list-to-output l)))))
+        (let write-next-char ((char-list l))
+          (if (not (null? char-list))
+              (begin
+                (write-char (car char-list) port)
+                (write-next-char (cdr char-list)))))))))
 
 (define replace-tabs-with-spaces
   (lambda (l tab-width)
